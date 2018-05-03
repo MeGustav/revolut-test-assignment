@@ -1,5 +1,8 @@
 package com.megustav.revolut;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.megustav.revolut.module.ConfigurationModule;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +17,13 @@ public class Main {
 
     /** Logger */
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-    /** Jetty port */
-    private static final int PORT = 13034;
 
     public static void main(String[] args) throws Exception {
-        Server server = new Server(PORT);
         log.info("Starting server...");
-        server.start();
-        server.join();
+        Injector base = Guice.createInjector(new ConfigurationModule());
+        Server jetty = base.getInstance(JettyServer.class).getServer();
+        jetty.start();
+        jetty.join();
     }
 
 }

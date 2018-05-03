@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.megustav</groupId>
+    <groupId>com.megustav.revolut</groupId>
     <artifactId>revolut</artifactId>
     <name>Revolut test assignment</name>
     <version>1.0-SNAPSHOT</version>
@@ -13,6 +13,7 @@
     <modules>
         <module>distributive</module>
         <module>application</module>
+        <module>itest</module>
     </modules>
 
     <dependencyManagement>
@@ -21,7 +22,31 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>9.4.9.v20180320</version>
+                <version>9.2.24.v20180105</version>
+            </dependency>
+            <!-- JAX RS reference -->
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>2.1</version>
+            </dependency>
+            <!-- JAX RS implementation -->
+            <!-- This version of Jersey provides everything we need and doesn't require HK2 -->
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-jetty-servlet</artifactId>
+                <version>2.25.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-json-jackson</artifactId>
+                <version>2.25.1</version>
+            </dependency>
+            <!-- Lightweight dependency injection -->
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>4.1.0</version>
             </dependency>
             <!-- Logging -->
             <dependency>
@@ -33,6 +58,17 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>1.1.11</version>
+            </dependency>
+            <!-- Misc -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -67,8 +103,14 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.21.0</version>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <!-- Plugin for starting processes -->
+                <plugin>
+                    <groupId>org.honton.chas</groupId>
+                    <artifactId>process-exec-maven-plugin</artifactId>
+                    <version>0.9.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>
