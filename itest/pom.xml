@@ -5,13 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>itest</artifactId>
     <name>Integration tests</name>
-    <packaging>pom</packaging>
 
     <parent>
         <artifactId>revolut</artifactId>
         <groupId>com.megustav.revolut</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+
+    <properties>
+        <test.server.port>10500</test.server.port>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -20,9 +23,30 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.14.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>3.1.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <!-- Filtering to replace properties -->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
         <plugins>
             <!-- Unpack application distributive -->
             <plugin>
@@ -65,10 +89,12 @@
                             <outputDirectory>${project.build.directory}/app/distributive/conf</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.basedir}/src/test/resources</directory>
-                                    <filtering>false</filtering>
+                                    <directory>${project.basedir}/src/main/resources</directory>
+                                    <!-- Replacing test properties -->
+                                    <filtering>true</filtering>
                                 </resource>
                             </resources>
+
                         </configuration>
                     </execution>
                 </executions>
@@ -79,16 +105,16 @@
                 <artifactId>process-exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>application-process</id>
+                        <id>start-application</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>start</goal>
                         </goals>
                         <configuration>
-                            <name>Start</name>
+                            <name>Account operations service</name>
                             <workingDir>${project.build.directory}/app/distributive/bin</workingDir>
                             <waitForInterrupt>false</waitForInterrupt>
-                            <waitAfterLaunch>5</waitAfterLaunch>
+                            <healthCheckUrl>http://localhost:${test.server.port}/management/health</healthCheckUrl>
                             <arguments>
                                 <argument>sh</argument>
                                 <argument>startup.sh</argument>
@@ -96,11 +122,30 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>stop-all</id>
+                        <id>stop-application</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop-all</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Tests execution -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

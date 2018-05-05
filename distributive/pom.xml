@@ -16,7 +16,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.megustav</groupId>
+            <groupId>com.megustav.revolut</groupId>
             <artifactId>application</artifactId>
             <version>${project.version}</version>
         </dependency>

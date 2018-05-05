@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Main">
+    <test name="Handlers" >
+        <parameter name="server.port" value="${test.server.port}"/>
+        <classes>
+            <class name="com.megustav.revolut.test.ManagementHandlerIT"/>
+            <class name="com.megustav.revolut.test.OperationHandlerIT"/>
+        </classes>
+    </test>
+</suite>

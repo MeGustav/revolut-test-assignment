@@ -3,6 +3,7 @@ package com.megustav.revolut;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.megustav.revolut.module.ConfigurationModule;
+import com.megustav.revolut.module.HandlersModule;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,10 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         log.info("Starting server...");
-        Injector base = Guice.createInjector(new ConfigurationModule());
+        Injector base = Guice.createInjector(
+                new ConfigurationModule(),
+                new HandlersModule()
+        );
         Server jetty = base.getInstance(JettyServer.class).getServer();
         jetty.start();
         jetty.join();
