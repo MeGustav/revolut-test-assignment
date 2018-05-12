@@ -57,6 +57,22 @@
                 <artifactId>guice-multibindings</artifactId>
                 <version>${guice.version}</version>
             </dependency>
+            <!-- Persistence -->
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>1.4.197</version>
+            </dependency>
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>3.6.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-core</artifactId>
+                <version>3.2.0</version>
+            </dependency>
             <!-- Logging -->
             <dependency>
                 <groupId>org.slf4j</groupId>

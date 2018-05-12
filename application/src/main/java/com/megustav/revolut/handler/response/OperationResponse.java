@@ -1,4 +1,4 @@
-package com.megustav.revolut.data;
+package com.megustav.revolut.handler.response;
 
 /**
  * Basic operation response

@@ -1,7 +1,7 @@
 package com.megustav.revolut.handler;
 
 import com.google.inject.Singleton;
-import com.megustav.revolut.data.OperationResponse;
+import com.megustav.revolut.handler.response.OperationResponse;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;

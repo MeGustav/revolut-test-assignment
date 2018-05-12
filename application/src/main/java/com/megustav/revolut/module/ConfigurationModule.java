@@ -17,9 +17,6 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
  */
 public class ConfigurationModule extends AbstractModule {
 
-    @Override
-    protected void configure() { }
-
     /**
      * @return parsed application configuration
      */
@@ -30,6 +27,11 @@ public class ConfigurationModule extends AbstractModule {
                 new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
                         .configure(params.properties().setFileName("application.properties"));
         FileBasedConfiguration configuration = builder.getConfiguration();
-        return new ApplicationConfiguration(configuration.getInt("server.port"));
+        return new ApplicationConfiguration(
+                configuration.getInt("server.port"),
+                configuration.getString("database.url"),
+                configuration.getString("database.user"),
+                configuration.getString("database.password")
+        );
     }
 }
