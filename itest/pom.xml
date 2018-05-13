@@ -18,7 +18,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.megustav</groupId>
+            <groupId>com.megustav.revolut</groupId>
+            <artifactId>application</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.megustav.revolut</groupId>
             <artifactId>distributive</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -27,13 +33,16 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.14.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>3.1.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

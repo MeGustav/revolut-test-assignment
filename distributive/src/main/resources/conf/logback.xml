@@ -23,6 +23,19 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="JERSEY"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>../logs/jersey.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %date{dd.MM.YYYY HH:mm:ss.SSS} [%thread] [%-5level] - %msg%n
+            </Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>../logs/jersey.log.%d{yyyy-MM-dd}</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
     <appender name="ROOT"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>../logs/root.log</file>
@@ -40,7 +53,11 @@
         <appender-ref ref="APPLICATION"/>
     </logger>
 
-    <root level="info">
+    <logger name="org.glassfish.jersey" level="debug" additivity="false">
+        <appender-ref ref="JERSEY"/>
+    </logger>
+
+    <root level="debug">
         <appender-ref ref="ROOT"/>
     </root>
 

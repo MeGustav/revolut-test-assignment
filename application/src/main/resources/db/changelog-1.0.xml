@@ -5,10 +5,37 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-    <changeSet id="base-table-structure" author="megustav">
+    <!-- Better separate every action into isolated change sets so it could be easily rolled back -->
+
+    <!-- Accounts table -->
+    <changeSet id="base-table-structure-accounts" author="megustav">
         <createTable tableName="accounts">
-            <column name="id" type="numeric">
-                <constraints primaryKey="true"/>
+            <column name="id" type="number" autoIncrement="true" startWith="1" incrementBy="1">
+                <constraints primaryKey="true" primaryKeyName="xpk_accounts"/>
+            </column>
+            <!-- Unique constraint provides index. This field will be the main predicate -->
+            <column name="number" type="varchar(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="balance" type="currency" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="varchar(3)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <!-- Transactions table -->
+    <changeSet id="base-table-structure-transactions" author="megustav">
+        <createTable tableName="transactions">
+            <column name="id" type="number" autoIncrement="true" startWith="1" incrementBy="1">
+                <constraints primaryKey="true" primaryKeyName="xpk_transactions"/>
+            </column>
+            <column name="account_id" type="number">
+                <constraints nullable="false" foreignKeyName="xfk_transactions" references="accounts(id)"/>
+            </column>
+            <column name="amount" type="currency">
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
