@@ -13,7 +13,8 @@
             <column name="id" type="number" autoIncrement="true" startWith="1" incrementBy="1">
                 <constraints primaryKey="true" primaryKeyName="xpk_accounts"/>
             </column>
-            <!-- Unique constraint provides index. This field will be the main predicate -->
+            <!-- Unique constraint provides index. Do not consider bic or swift for the sake of ease -->
+            <!-- Basically - account number uniquely identifies account. Could be used in predicates -->
             <column name="number" type="varchar(20)">
                 <constraints nullable="false" unique="true"/>
             </column>
@@ -23,18 +24,27 @@
             <column name="currency" type="varchar(3)">
                 <constraints nullable="false"/>
             </column>
+            <column name="creation_date" type="date">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
     <!-- Transactions table -->
-    <changeSet id="base-table-structure-transactions" author="megustav">
-        <createTable tableName="transactions">
+    <changeSet id="base-table-structure-operations" author="megustav">
+        <createTable tableName="operations">
             <column name="id" type="number" autoIncrement="true" startWith="1" incrementBy="1">
                 <constraints primaryKey="true" primaryKeyName="xpk_transactions"/>
             </column>
             <column name="account_id" type="number">
                 <constraints nullable="false" foreignKeyName="xfk_transactions" references="accounts(id)"/>
             </column>
+            <column name="type" type="number(1)">
+                <constraints nullable="false"/>
+            </column>
             <column name="amount" type="currency">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action_time" type="timestamp">
                 <constraints nullable="false"/>
             </column>
         </createTable>

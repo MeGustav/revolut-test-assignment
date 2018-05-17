@@ -2,7 +2,7 @@ package com.megustav.revolut;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.megustav.revolut.handler.Handler;
+import com.megustav.revolut.rest.handler.Handler;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;

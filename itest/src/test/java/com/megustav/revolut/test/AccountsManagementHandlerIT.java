@@ -1,6 +1,7 @@
 package com.megustav.revolut.test;
 
-import com.megustav.revolut.data.Account;
+import com.megustav.revolut.rest.data.AccountGetResponse;
+import com.megustav.revolut.rest.data.AccountPayload;
 import com.megustav.revolut.data.Currency;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -22,7 +23,7 @@ import static io.restassured.RestAssured.given;
  * @author MeGustav
  * 05/05/2018 20:00
  */
-public class AccountsHandlerIT {
+public class AccountsManagementHandlerIT {
 
     /**
      * Setting up server port for tests
@@ -50,66 +51,32 @@ public class AccountsHandlerIT {
      */
     @Test
     public void testAccountCreation() {
-        Account account = new Account("42307810990000000001", BigDecimal.TEN, Currency.RUR);
+        AccountPayload account = new AccountPayload("42307810990000000001", BigDecimal.TEN, Currency.RUR);
 
-        requestAccountPut(account.getNumber(), account)
+        requestAccountPost(account)
                 .statusCode(Status.CREATED.getStatusCode());
-        Account foundAccount = requestGuaranteedAccountGet(account.getNumber());
+        AccountGetResponse foundAccount = requestGuaranteedAccountGet(account.getNumber());
 
-        Assertions.assertThat(foundAccount.getBalance())
+        Assertions.assertThat(foundAccount.getCurrentBalance())
                 .as("Amount")
-                .isEqualByComparingTo(account.getBalance());
+                .isEqualByComparingTo(account.getInitialBalance());
         Assertions.assertThat(foundAccount.getCurrency())
                 .as("Currency")
                 .isEqualTo(account.getCurrency());
     }
 
     /**
-     * Test creation with request number doesn't match the path param
-     */
-    @Test
-    public void testAccountCreationNumbersNotMatch() {
-        Account account = new Account("42307810990000000004", BigDecimal.TEN, Currency.RUR);
-        requestAccountPut("42307810990000000005", account)
-                .statusCode(Status.BAD_REQUEST.getStatusCode());
-    }
-
-    /**
-     * Tesdt account update
-     */
-    @Test
-    public void testAccountUpdate() {
-        String number = "42307810990000000002";
-        Account account = new Account(number, BigDecimal.TEN, Currency.RUR);
-        requestAccountPut(number, account)
-                .statusCode(Status.CREATED.getStatusCode());
-        Account changedAccount = new Account(number, new BigDecimal("200.00"), Currency.RUR);
-        requestAccountPut(number, changedAccount)
-                .statusCode(Status.OK.getStatusCode());
-
-        Account foundAccount = requestGuaranteedAccountGet(number);
-
-        Assertions.assertThat(foundAccount.getBalance())
-                .as("Amount")
-                .isEqualByComparingTo(changedAccount.getBalance());
-        Assertions.assertThat(foundAccount.getCurrency())
-                .as("Currency")
-                .isEqualTo(changedAccount.getCurrency());
-    }
-
-    /**
-     * Make an account PUT request
+     * Make an account POST request
      *
-     * @param number account number
      * @param account account
      * @return response
      */
-    private ValidatableResponse requestAccountPut(String number, Account account) {
+    private ValidatableResponse requestAccountPost(AccountPayload account) {
         return given()
                 .body(account)
                 .header(new Header("Content-Type", ContentType.JSON.toString()))
                 .when()
-                .put(number)
+                .post()
                 .then();
     }
 
@@ -119,10 +86,10 @@ public class AccountsHandlerIT {
      * @param number account number
      * @return account data
      */
-    private Account requestGuaranteedAccountGet(String number) {
+    private AccountGetResponse requestGuaranteedAccountGet(String number) {
         return requestAccountGet(number)
                 .statusCode(Status.OK.getStatusCode())
-                .extract().as(Account.class);
+                .extract().as(AccountGetResponse.class);
     }
 
     /**

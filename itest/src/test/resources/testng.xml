@@ -6,7 +6,7 @@
         <parameter name="server.port" value="${test.server.port}"/>
         <classes>
             <class name="com.megustav.revolut.test.ManagementHandlerIT"/>
-            <class name="com.megustav.revolut.test.AccountsHandlerIT"/>
+            <class name="com.megustav.revolut.test.AccountsManagementHandlerIT"/>
         </classes>
     </test>
 </suite>

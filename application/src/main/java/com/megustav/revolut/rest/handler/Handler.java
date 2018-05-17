@@ -1,4 +1,4 @@
-package com.megustav.revolut.handler;
+package com.megustav.revolut.rest.handler;
 
 /**
  * Basic handler contract
