@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.megustav.revolut.JerseyConfig;
 import com.megustav.revolut.database.dao.AccountsDao;
 import com.megustav.revolut.database.entity.InternalAccount;
+import com.megustav.revolut.misc.BlockingService;
 import com.megustav.revolut.rest.MappingUtils;
 import com.megustav.revolut.rest.data.AccountPayload;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Accounts handler
@@ -28,10 +30,13 @@ public class AccountsManagementHandler implements Handler {
     private static final Logger log = LoggerFactory.getLogger(JerseyConfig.class);
     /** Accounts DAO */
     private final AccountsDao dao;
+    /** Blocking service */
+    private final BlockingService blockingService;
 
     @Inject
-    public AccountsManagementHandler(AccountsDao dao) {
+    public AccountsManagementHandler(AccountsDao dao, BlockingService blockingService) {
         this.dao = dao;
+        this.blockingService = blockingService;
     }
 
     /**
@@ -53,21 +58,16 @@ public class AccountsManagementHandler implements Handler {
     public Response postAccount(AccountPayload entity) {
         String number = entity.getNumber();
         log.debug("Got a POST request for account '{}'. Body: {}", number, entity);
-        try {
-            Optional<InternalAccount> accountOpt = dao.findAccount(number);
-            if (accountOpt.isPresent()) {
-                // For the sake of the assignment
-                // there is not much to update in the account information
-                return Response.notModified().entity("Account information could not be modified").build();
-            } else {
-                boolean inserted = dao.insertAccount(MappingUtils.createBasicAccountInfo(entity));
-                return inserted ?
-                        Response.created(URI.create("/accounts/" + number)).build() :
-                        Response.notModified().entity("Account was not created").build();
-            }
-        } catch (Exception ex) {
-            log.error("Error creating account '{}'", number, ex);
-            return Response.serverError().entity("Internal server error").build();
+        Optional<InternalAccount> accountOpt = dao.findAccount(number);
+        if (accountOpt.isPresent()) {
+            // For the sake of the assignment
+            // there is not much to update in the account information
+            return Response.notModified().entity("Account information could not be modified").build();
+        } else {
+            boolean inserted = dao.insertAccount(MappingUtils.createBasicAccountInfo(entity));
+            return inserted ?
+                    Response.created(URI.create("/accounts/" + number)).build() :
+                    Response.notModified().entity("Account was not created").build();
         }
     }
 
@@ -82,21 +82,16 @@ public class AccountsManagementHandler implements Handler {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAccount(@PathParam("account") String number) {
         log.debug("Got a GET request for account '{}'", number);
-        try {
-            Optional<InternalAccount> accountOpt = dao.findAccount(number);
-            if (accountOpt.isPresent()) {
-                InternalAccount account = accountOpt.get();
-                log.debug("Found account '{}': {}", number, account);
-                return Response.ok()
-                        .entity(MappingUtils.createAccountGetResponse(account))
-                        .build();
-            } else {
-                log.debug("Account '{}' was not found", number);
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-        } catch (Exception ex) {
-            log.error("Error getting account '{}'", number, ex);
-            return Response.serverError().entity("Internal server error").build();
+        Optional<InternalAccount> accountOpt = dao.findAccount(number);
+        if (accountOpt.isPresent()) {
+            InternalAccount account = accountOpt.get();
+            log.debug("Found account '{}': {}", number, account);
+            return Response.ok()
+                    .entity(MappingUtils.createAccountGetResponse(account))
+                    .build();
+        } else {
+            log.debug("Account '{}' was not found", number);
+            throw new NotFoundException("Account was not found");
         }
     }
 
@@ -110,22 +105,26 @@ public class AccountsManagementHandler implements Handler {
     @Path("{account}")
     public Response deleteAccount(@PathParam("account") String number) {
         log.debug("Got a DELETE request for account '{}'", number);
-        try {
-            Optional<InternalAccount> accountOpt = dao.findAccount(number);
-            if (accountOpt.isPresent()) {
-                InternalAccount account = accountOpt.get();
-                log.debug("Deleting account '{}'...", number);
+        Optional<InternalAccount> accountOpt = dao.findAccount(number);
+        if (accountOpt.isPresent()) {
+            InternalAccount account = accountOpt.get();
+            log.debug("Deleting account '{}'...", number);
+
+            // Locking account for deletion to prevent
+            // submitting operations to deleted account
+            Lock lock = blockingService.getLock(number);
+            try {
+                lock.lock();
                 boolean deleted = dao.deleteAccount(account.getId());
                 return deleted ?
                         Response.ok().build() :
                         Response.notModified().build();
-            } else {
-                log.debug("Account '{}' was not found", number);
-                return Response.status(Response.Status.NOT_FOUND).build();
+            } finally {
+                lock.unlock();
             }
-        } catch (Exception ex) {
-            log.error("Error deleting account '{}'", number, ex);
-            return Response.serverError().entity("Internal server error").build();
+        } else {
+            log.debug("Account '{}' was not found", number);
+            throw new NotFoundException("Account was not found");
         }
     }
 

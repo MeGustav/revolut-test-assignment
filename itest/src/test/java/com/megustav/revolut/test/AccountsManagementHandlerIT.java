@@ -20,6 +20,8 @@ import static io.restassured.RestAssured.given;
 /**
  * Accounts handler tests
  *
+ * TODO ideally there should also be some basic raw JSON-payload tests
+ *
  * @author MeGustav
  * 05/05/2018 20:00
  */

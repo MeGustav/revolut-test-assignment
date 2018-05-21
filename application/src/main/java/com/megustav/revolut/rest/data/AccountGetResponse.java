@@ -30,7 +30,7 @@ public class AccountGetResponse {
 
     /** Account creation date */
     @JsonProperty(value = "creation-date", required = true)
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private final Date creationDate;
 
     /**

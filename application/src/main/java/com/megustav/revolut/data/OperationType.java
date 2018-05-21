@@ -1,5 +1,8 @@
 package com.megustav.revolut.data;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 /**
  * Account operation type
  *
@@ -20,5 +23,20 @@ public enum OperationType {
 
     public int getCode() {
         return code;
+    }
+
+    /**
+     * Get {@link OperationType} by numeric code
+     *
+     * @param code code
+     * @return {@link OperationType}
+     */
+    public static OperationType of(int code) {
+        return Stream.of(values())
+                .filter(type -> Objects.equals(code, type.getCode()))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Unknown operation type code: " + code)
+                );
     }
 }

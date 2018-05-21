@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import com.megustav.revolut.database.LiquibaseRunner;
 import com.megustav.revolut.module.ConfigurationModule;
 import com.megustav.revolut.module.HandlersModule;
+import com.megustav.revolut.module.MiscModule;
 import com.megustav.revolut.module.PersistenceModule;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
@@ -25,7 +26,8 @@ public class Main {
         Injector injector = Guice.createInjector(
                 new ConfigurationModule(),
                 new PersistenceModule(),
-                new HandlersModule()
+                new HandlersModule(),
+                new MiscModule()
         );
         log.info("Preparing DB...");
         injector.getInstance(LiquibaseRunner.class).applyChangeLog();

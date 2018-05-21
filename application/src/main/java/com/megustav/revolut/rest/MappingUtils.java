@@ -2,8 +2,13 @@ package com.megustav.revolut.rest;
 
 import com.megustav.revolut.database.entity.BaseAccountInfo;
 import com.megustav.revolut.database.entity.InternalAccount;
-import com.megustav.revolut.rest.data.AccountPayload;
+import com.megustav.revolut.database.entity.InternalOperation;
 import com.megustav.revolut.rest.data.AccountGetResponse;
+import com.megustav.revolut.rest.data.AccountPayload;
+import com.megustav.revolut.rest.data.OperationsGetResponse;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Mapping utils
@@ -40,6 +45,23 @@ public final class MappingUtils {
                 account.getBalance(),
                 account.getCurrency(),
                 account.getCreationDate()
+        );
+    }
+
+    /**
+     * Transform list of {@link InternalOperation} to {@link OperationsGetResponse}
+     *
+     * @param account account number
+     * @param operations list of {@link InternalOperation}
+     * @return {@link OperationsGetResponse} instance
+     */
+    public static OperationsGetResponse createOperationsGetResponse(String account,
+                                                                    List<InternalOperation> operations) {
+        return new OperationsGetResponse(
+                operations.stream()
+                        .map(op -> new OperationsGetResponse.OperationInfo(
+                                account, op.getType(), op.getAmount(), op.getActionTime()))
+                        .collect(Collectors.toList())
         );
     }
 
