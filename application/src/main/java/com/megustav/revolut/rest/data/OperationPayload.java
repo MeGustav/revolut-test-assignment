@@ -33,18 +33,20 @@ public class OperationPayload {
      *
      * Using {@link JsonCreator} to ensure immutability,
      * but it requires {@link JsonProperty} for every field
-     * Could just go with {@link JsonProperty} in constructor
-     * instead of duplicating them at field declaration,
-     * but constructor would become bulky and messy
+     *
+     * Duplicating {@link JsonProperty} fully (even the {@link JsonProperty#required()})
+     * in constructor for now so that both serialization and deserialization work fine.
+     * TODO there is obviously a better way of doing this, should find out
      *
      * @param type operation type
      * @param amount operation amount
      * @param currency operation currency
      */
     @JsonCreator
-    public OperationPayload(@JsonProperty("type") OperationType type,
-                            @JsonProperty("amount") BigDecimal amount,
-                            @JsonProperty("currency") Currency currency) {
+    public OperationPayload(
+            @JsonProperty(value = "type", required = true) OperationType type,
+            @JsonProperty(value = "amount", required = true) BigDecimal amount,
+            @JsonProperty(value = "currency", required = true) Currency currency) {
         this.type = type;
         this.amount = amount;
         this.currency = currency;

@@ -7,13 +7,17 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.response.ValidatableResponse;
+import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 
 import static io.restassured.RestAssured.given;
 
@@ -65,6 +69,23 @@ public class AccountsManagementHandlerIT {
         Assertions.assertThat(foundAccount.getCurrency())
                 .as("Currency")
                 .isEqualTo(account.getCurrency());
+    }
+
+    /**
+     * Test creating without any required field.
+     * There is no way of creating a good invalid data from java,
+     * so getting a raw json from file
+     */
+    @Test
+    public void testAccountCreationWithNoCurrency() throws IOException {
+        InputStream json = this.getClass()
+                .getResourceAsStream("/data/account-payload-no-currency.json");
+        given()
+                .body(IOUtils.toString(json, StandardCharsets.UTF_8))
+                .header(new Header("Content-Type", ContentType.JSON.toString()))
+                .when()
+                .post()
+                .then().statusCode(Status.BAD_REQUEST.getStatusCode());
     }
 
     /**

@@ -17,11 +17,9 @@ public class AccountPayload {
     /** Account number */
     @JsonProperty(value = "number", required = true)
     private final String number;
-
     /** Balance */
     @JsonProperty(value = "initial-balance", required = true)
     private final BigDecimal initialBalance;
-
     /** Currency */
     @JsonProperty(value = "currency", required = true)
     private final Currency currency;
@@ -31,18 +29,20 @@ public class AccountPayload {
      *
      * Using {@link JsonCreator} to ensure immutability,
      * but it requires {@link JsonProperty} for every field
-     * Could just go with {@link JsonProperty} in constructor
-     * instead of duplicating them at field declaration,
-     * but constructor would become bulky and messy
+     *
+     * Duplicating {@link JsonProperty} fully (even the {@link JsonProperty#required()})
+     * in constructor for now so that both serialization and deserialization work fine.
+     * TODO there is obviously a better way of doing this, should find out
      *
      * @param number account number
      * @param initialBalance initial balance
      * @param currency account currency
      */
     @JsonCreator
-    public AccountPayload(@JsonProperty("number") String number,
-                          @JsonProperty("initial-balance") BigDecimal initialBalance,
-                          @JsonProperty("currency") Currency currency) {
+    public AccountPayload(
+            @JsonProperty(value = "number", required = true) String number,
+            @JsonProperty(value = "initial-balance", required = true) BigDecimal initialBalance,
+            @JsonProperty(value = "currency", required = true) Currency currency) {
         this.number = number;
         this.initialBalance = initialBalance;
         this.currency = currency;

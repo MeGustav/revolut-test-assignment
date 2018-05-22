@@ -11,12 +11,16 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.response.ValidatableResponse;
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
@@ -258,6 +262,24 @@ public class AccountsOperationsHandlerIT {
         assertThat(operationsResponse2).as("Account2 response").isNotNull();
         List<OperationInfo> operations2 = operationsResponse2.getOperations();
         assertThat(operations2).as("Account2 operation list").hasSize(1);
+    }
+
+    /**
+     * Test creating without any required field.
+     * There is no way of creating a good invalid data from java,
+     * so getting a raw json from file
+     */
+    @Test
+    public void testOperationWithNoAmount() throws IOException {
+        InputStream json = this.getClass()
+                .getResourceAsStream("/data/operation-payload-no-amount.json");
+        given()
+                .body(IOUtils.toString(json, StandardCharsets.UTF_8))
+                .pathParam("account", "42307810991000000012")
+                .header(new Header("Content-Type", ContentType.JSON.toString()))
+                .when()
+                .post("{account}/operation")
+                .then().statusCode(Status.BAD_REQUEST.getStatusCode());
     }
 
     /**

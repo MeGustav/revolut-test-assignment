@@ -22,7 +22,8 @@ public class OperationsGetResponse {
     private final List<OperationInfo> operations;
 
     @JsonCreator
-    public OperationsGetResponse(@JsonProperty("operations") List<OperationInfo> operations) {
+    public OperationsGetResponse(
+            @JsonProperty(value = "operations", required = true) List<OperationInfo> operations) {
         this.operations = operations;
     }
 
@@ -52,9 +53,10 @@ public class OperationsGetResponse {
          *
          * Using {@link JsonCreator} to ensure immutability,
          * but it requires {@link JsonProperty} for every field
-         * Could just go with {@link JsonProperty} in constructor
-         * instead of duplicating them at field declaration,
-         * but constructor would become bulky and messy
+         *
+         * Duplicating {@link JsonProperty} fully (even the {@link JsonProperty#required()})
+         * in constructor for now so that both serialization and deserialization work fine.
+         * TODO there is obviously a better way of doing this, should find out
          *
          * @param account account
          * @param type operation type
@@ -62,10 +64,11 @@ public class OperationsGetResponse {
          * @param actionTime action time
          */
         @JsonCreator
-        public OperationInfo(@JsonProperty("account") String account,
-                             @JsonProperty("type") OperationType type,
-                             @JsonProperty("amount") BigDecimal amount,
-                             @JsonProperty("action-time") Date actionTime) {
+        public OperationInfo(
+                @JsonProperty(value = "account", required = true) String account,
+                @JsonProperty(value = "type", required = true) OperationType type,
+                @JsonProperty(value = "amount", required = true) BigDecimal amount,
+                @JsonProperty(value = "action-time", required = true) Date actionTime) {
             this.account = account;
             this.type = type;
             this.amount = amount;

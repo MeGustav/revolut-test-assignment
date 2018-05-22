@@ -19,15 +19,12 @@ public class AccountGetResponse {
     /** Account number */
     @JsonProperty(value = "number", required = true)
     private final String number;
-
     /** Balance */
     @JsonProperty(value = "current-balance", required = true)
     private final BigDecimal currentBalance;
-
     /** Currency */
     @JsonProperty(value = "currency", required = true)
     private final Currency currency;
-
     /** Account creation date */
     @JsonProperty(value = "creation-date", required = true)
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -38,9 +35,10 @@ public class AccountGetResponse {
      *
      * Using {@link JsonCreator} to ensure immutability,
      * but it requires {@link JsonProperty} for every field
-     * Could just go with {@link JsonProperty} in constructor
-     * instead of duplicating them at field declaration,
-     * but constructor would become bulky and messy
+     *
+     * Duplicating {@link JsonProperty} fully (even the {@link JsonProperty#required()})
+     * in constructor for now so that both serialization and deserialization work fine.
+     * TODO there is obviously a better way of doing this, should find out
      *
      * @param number account number
      * @param currentBalance initial balance
@@ -48,10 +46,11 @@ public class AccountGetResponse {
      * @param creationDate account creation date
      */
     @JsonCreator
-    public AccountGetResponse(@JsonProperty("number") String number,
-                              @JsonProperty("current-balance") BigDecimal currentBalance,
-                              @JsonProperty("currency") Currency currency,
-                              @JsonProperty("creation-date") Date creationDate) {
+    public AccountGetResponse(
+            @JsonProperty(value = "number", required = true) String number,
+            @JsonProperty(value = "current-balance", required = true) BigDecimal currentBalance,
+            @JsonProperty(value = "currency", required = true) Currency currency,
+            @JsonProperty(value = "creation-date", required = true) Date creationDate) {
         this.number = number;
         this.currentBalance = currentBalance;
         this.currency = currency;
