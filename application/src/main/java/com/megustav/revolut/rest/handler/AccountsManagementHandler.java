@@ -58,17 +58,25 @@ public class AccountsManagementHandler implements Handler {
     public Response postAccount(AccountPayload entity) {
         String number = entity.getNumber();
         log.debug("Got a POST request for account '{}'. Body: {}", number, entity);
-        Optional<InternalAccount> accountOpt = dao.findAccount(number);
-        if (accountOpt.isPresent()) {
-            // For the sake of the assignment
-            // there is not much to update in the account information
-            return Response.notModified().entity("Account information could not be modified").build();
-        } else {
-            boolean inserted = dao.insertAccount(MappingUtils.createBasicAccountInfo(entity));
-            return inserted ?
-                    Response.created(URI.create("/accounts/" + number)).build() :
-                    Response.notModified().entity("Account was not created").build();
+        // Locking account to prevent multiple insertions attempts
+        Lock lock = blockingService.getLock(number);
+        try {
+            lock.lock();
+            Optional<InternalAccount> accountOpt = dao.findAccount(number);
+            if (accountOpt.isPresent()) {
+                // For the sake of the assignment
+                // there is not much to update in the account information
+                return Response.notModified().entity("Account information could not be modified").build();
+            } else {
+                boolean inserted = dao.insertAccount(MappingUtils.createBasicAccountInfo(entity));
+                return inserted ?
+                        Response.created(URI.create("/accounts/" + number)).build() :
+                        Response.notModified().entity("Account was not created").build();
+            }
+        } finally {
+            lock.unlock();
         }
+
     }
 
     /**
@@ -105,26 +113,27 @@ public class AccountsManagementHandler implements Handler {
     @Path("{account}")
     public Response deleteAccount(@PathParam("account") String number) {
         log.debug("Got a DELETE request for account '{}'", number);
-        Optional<InternalAccount> accountOpt = dao.findAccount(number);
-        if (accountOpt.isPresent()) {
-            InternalAccount account = accountOpt.get();
-            log.debug("Deleting account '{}'...", number);
-
-            // Locking account for deletion to prevent
-            // submitting operations to deleted account
-            Lock lock = blockingService.getLock(number);
-            try {
-                lock.lock();
+        // Locking account for deletion to prevent
+        // submitting operations to deleted account
+        // or multiple deletion attempts
+        Lock lock = blockingService.getLock(number);
+        try {
+            lock.lock();
+            Optional<InternalAccount> accountOpt = dao.findAccount(number);
+            if (accountOpt.isPresent()) {
+                InternalAccount account = accountOpt.get();
+                log.debug("Deleting account '{}'...", number);
                 boolean deleted = dao.deleteAccount(account.getId());
                 return deleted ?
                         Response.ok().build() :
                         Response.notModified().build();
-            } finally {
-                lock.unlock();
+
+            } else {
+                log.debug("Account '{}' was not found", number);
+                throw new NotFoundException("Account was not found");
             }
-        } else {
-            log.debug("Account '{}' was not found", number);
-            throw new NotFoundException("Account was not found");
+        } finally {
+            lock.unlock();
         }
     }
 
